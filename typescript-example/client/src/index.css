@@ -1,0 +1,58 @@
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+}
+
+input {
+  width: 100%;
+}
+
+.form {
+  margin-top: 1rem;
+}
+
+.alert {
+  color: red;
+  margin: 1rem 0;
+}
+
+.form-control {
+  margin-top: 1rem;
+}
+
+.form-control label {
+  margin-bottom: 0.5rem;
+}
+
+.container {
+  margin-top: 3rem;
+}
+
+.form-horizontal {
+  display: flex;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-between {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.todos {
+  list-style-type: none;
+  padding: 0;
+}
+
+.todos li {
+  padding: 0.5rem 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.todos li span {
+  cursor: pointer;
+}

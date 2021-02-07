@@ -1,0 +1,12 @@
+query User {
+  user {
+    name
+    todos {
+      _id
+      title
+      done
+      createdAt
+      updatedAt
+    }
+  }
+}

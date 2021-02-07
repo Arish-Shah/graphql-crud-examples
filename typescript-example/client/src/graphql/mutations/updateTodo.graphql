@@ -1,0 +1,9 @@
+mutation UpdateTodo($_id: ID!, $title: String, $done: Boolean) {
+  updateTodo(todo: { _id: $_id, title: $title, done: $done }) {
+    _id
+    title
+    done
+    createdAt
+    updatedAt
+  }
+}
