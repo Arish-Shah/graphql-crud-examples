@@ -44,13 +44,8 @@ todoSchema.post("save", async (doc: ITodo) => {
 todoSchema.post("remove", async (doc: ITodo) => {
   // remove todo from user's todos
   const user = await User.findById(doc.creator);
-  const index = user?.todos.find(
-    todo => todo.toString() === doc._id.toString()
-  );
-  if (index) {
-    // @ts-ignore
-    user?.todos.pull(index);
-  }
+  // @ts-ignore
+  user?.todos.pull(doc._id);
   await user?.save();
 });
 
