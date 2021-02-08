@@ -11,6 +11,7 @@ import config from "./config";
 import { MeResolver } from "./resolvers/me";
 import { RegisterResolver } from "./resolvers/register";
 import { LoginResolver } from "./resolvers/login";
+import { LogoutResolver } from "./resolvers/logout";
 import { redis } from "./redis";
 
 const main = async () => {
@@ -18,9 +19,9 @@ const main = async () => {
 
   const server = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [MeResolver, RegisterResolver, LoginResolver]
+      resolvers: [MeResolver, RegisterResolver, LoginResolver, LogoutResolver]
     }),
-    context: ({ req }) => ({ req })
+    context: ({ req, res }) => ({ req, res })
   });
 
   const RedisStore = connectRedis(session);
