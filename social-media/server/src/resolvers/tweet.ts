@@ -9,6 +9,7 @@ import {
   FieldResolver,
   Root,
 } from "type-graphql";
+import { Reply } from "../entities/Reply";
 
 import { Tweet } from "../entities/Tweet";
 import { User } from "../entities/User";
@@ -18,19 +19,47 @@ import { Context } from "./types/context";
 @Resolver(Tweet)
 export class TweetResolver {
   @FieldResolver(() => User)
-  creator(@Root() parent: Tweet): Promise<User> {
-    return User.findOne(parent.creatorId);
+  creator(
+    @Root() parent: Tweet,
+    @Ctx() { userLoader }: Context
+  ): Promise<User> {
+    return userLoader.load(parent.creatorId);
+  }
+
+  @FieldResolver(() => [Reply])
+  replies(@Root() parent: Tweet) {
+    return Reply.find({
+      where: { parentId: parent.id },
+    });
+  }
+
+  @Query(() => [Tweet])
+  tweets(): Promise<Tweet[]> {
+    return Tweet.find({ order: { createdAt: "DESC" } });
   }
 
   @Mutation(() => Tweet)
   @UseMiddleware(isAuth)
-  async tweet(
-    @Arg("text") text: string,
-    @Ctx() { req }: Context
-  ): Promise<Tweet> {
+  tweet(@Arg("text") text: string, @Ctx() { req }: Context): Promise<Tweet> {
     // @ts-ignore
     const { userId } = req.session;
-    return await Tweet.create({
+    return Tweet.create({
+      creatorId: userId,
+      text,
+    }).save();
+  }
+
+  @Mutation(() => Reply)
+  @UseMiddleware(isAuth)
+  reply(
+    @Arg("tweetId", () => ID) tweetId: string,
+    @Arg("text") text: string,
+    @Ctx() { req }: Context
+  ): Promise<Reply> {
+    // @ts-ignore
+    const { userId } = req.session;
+    return Reply.create({
+      parentId: tweetId,
       creatorId: userId,
       text,
     }).save();

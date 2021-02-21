@@ -41,7 +41,10 @@ export class UserResolver {
 
   @FieldResolver(() => [Tweet])
   tweets(@Root() parent: User): Promise<Tweet[]> {
-    return Tweet.find({ where: { creatorId: parent.id } });
+    return Tweet.find({
+      where: { creatorId: parent.id },
+      order: { createdAt: "DESC" },
+    });
   }
 
   @Mutation(() => UserResponse)

@@ -17,11 +17,13 @@ type FieldError {
 type Mutation {
   login(password: String!, username: String!): UserResponse!
   register(input: RegisterInput!): UserResponse!
+  reply(text: String!, tweetId: ID!): Reply!
   tweet(text: String!): Tweet!
 }
 
 type Query {
   me: User
+  tweets: [Tweet!]!
 }
 
 input RegisterInput {
@@ -30,10 +32,19 @@ input RegisterInput {
   username: String!
 }
 
+type Reply {
+  createdAt: DateTime!
+  creator: User!
+  id: String!
+  parent: Tweet!
+  text: String!
+}
+
 type Tweet {
   createdAt: DateTime!
   creator: User!
   id: ID!
+  replies: [Reply!]!
   text: String!
 }
 

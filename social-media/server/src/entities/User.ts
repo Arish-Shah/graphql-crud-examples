@@ -30,7 +30,7 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @OneToMany(() => Tweet, (tweet) => tweet.creator)
+  @OneToMany(() => Tweet, (tweet) => tweet.creator, { onDelete: "CASCADE" })
   tweets: Tweet[];
 
   @BeforeInsert()
