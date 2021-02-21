@@ -6,9 +6,11 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import bcrypt from "bcryptjs";
+import { Tweet } from "./Tweet";
 
 @ObjectType()
 @Entity("users")
@@ -28,12 +30,8 @@ export class User extends BaseEntity {
   @Column()
   password: string;
 
-  @ManyToMany(() => User, (user) => user.following)
-  @JoinTable()
-  followers: User[];
-
-  @ManyToMany(() => User, (user) => user.followers)
-  following: User[];
+  @OneToMany(() => Tweet, (tweet) => tweet.creator)
+  tweets: Tweet[];
 
   @BeforeInsert()
   async hashPassword() {

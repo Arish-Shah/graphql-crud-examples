@@ -2,12 +2,12 @@ import {
   Arg,
   Ctx,
   Field,
-  ID,
+  FieldResolver,
   Mutation,
   ObjectType,
   Query,
   Resolver,
-  UseMiddleware,
+  Root,
 } from "type-graphql";
 import bcrypt from "bcryptjs";
 
@@ -16,8 +16,7 @@ import { RegisterInput } from "./types/register-input";
 import { validateRegister } from "../util/validators";
 import { FieldError } from "./types/field-error";
 import { Context } from "./types/context";
-import { isAuth } from "../middleware/isAuth";
-import { getConnection } from "typeorm";
+import { Tweet } from "../entities/Tweet";
 
 @ObjectType()
 class UserResponse {
@@ -38,6 +37,11 @@ export class UserResolver {
       return null;
     }
     return User.findOne(userId);
+  }
+
+  @FieldResolver(() => [Tweet])
+  tweets(@Root() parent: User): Promise<Tweet[]> {
+    return Tweet.find({ where: { creatorId: parent.id } });
   }
 
   @Mutation(() => UserResponse)
@@ -105,57 +109,5 @@ export class UserResolver {
         };
       }
     }
-  }
-
-  @Mutation(() => Boolean)
-  logout(@Ctx() { req, res }: Context): Promise<boolean> {
-    return new Promise((resolve) => {
-      return req.session.destroy((err) => {
-        if (err) {
-          return resolve(false);
-        }
-        res.clearCookie(process.env.COOKIE_NAME);
-        return resolve(true);
-      });
-    });
-  }
-
-  @Mutation(() => Boolean)
-  @UseMiddleware(isAuth)
-  async follow(
-    @Arg("id", () => ID) id: string,
-    @Ctx() { req }: Context
-  ): Promise<boolean> {
-    // @ts-ignore
-    const { userId } = req.session;
-    const toFollow = await User.findOne(id);
-    if (!toFollow) {
-      return false;
-    }
-
-    const connection = getConnection();
-
-    try {
-      await connection.query(
-        `
-        INSERT INTO public.users_followers_users ("usersId_1", "usersId_2")
-        VALUES ($1, $2);
-        `,
-        [userId, toFollow.id]
-      );
-    } catch (err) {
-      const detail = err.detail as string;
-      if (detail.includes("already exists")) {
-        // already following
-        await connection.query(
-          `
-          DELETE FROM public.users_followers_users
-          WHERE "usersId_1"=$1 AND "usersId_2"=$2;
-        `,
-          [userId, toFollow.id]
-        );
-      }
-    }
-    return true;
   }
 }

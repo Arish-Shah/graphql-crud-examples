@@ -9,6 +9,7 @@ import session from "express-session";
 import connectRedis from "connect-redis";
 
 import { UserResolver } from "./resolvers/user";
+import { TweetResolver } from "./resolvers/tweet";
 
 dotenv.config();
 
@@ -22,7 +23,8 @@ const main = async () => {
 
   const server = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver],
+      resolvers: [UserResolver, TweetResolver],
+      emitSchemaFile: true,
     }),
     context: ({ req, res }) => ({ req, res }),
   });
