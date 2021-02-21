@@ -2,10 +2,12 @@ import {
   Arg,
   Ctx,
   Field,
+  ID,
   Mutation,
   ObjectType,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
 import bcrypt from "bcryptjs";
 
@@ -14,6 +16,8 @@ import { RegisterInput } from "./types/register-input";
 import { validateRegister } from "../util/validators";
 import { FieldError } from "./types/field-error";
 import { Context } from "./types/context";
+import { isAuth } from "../middleware/isAuth";
+import { getConnection } from "typeorm";
 
 @ObjectType()
 class UserResponse {
@@ -24,7 +28,7 @@ class UserResponse {
   errors?: FieldError[];
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
   @Query(() => User, { nullable: true })
   me(@Ctx() { req }: Context): Promise<User | null> {
@@ -114,5 +118,44 @@ export class UserResolver {
         return resolve(true);
       });
     });
+  }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  async follow(
+    @Arg("id", () => ID) id: string,
+    @Ctx() { req }: Context
+  ): Promise<boolean> {
+    // @ts-ignore
+    const { userId } = req.session;
+    const toFollow = await User.findOne(id);
+    if (!toFollow) {
+      return false;
+    }
+
+    const connection = getConnection();
+
+    try {
+      await connection.query(
+        `
+        INSERT INTO public.users_followers_users ("usersId_1", "usersId_2")
+        VALUES ($1, $2);
+        `,
+        [userId, toFollow.id]
+      );
+    } catch (err) {
+      const detail = err.detail as string;
+      if (detail.includes("already exists")) {
+        // already following
+        await connection.query(
+          `
+          DELETE FROM public.users_followers_users
+          WHERE "usersId_1"=$1 AND "usersId_2"=$2;
+        `,
+          [userId, toFollow.id]
+        );
+      }
+    }
+    return true;
   }
 }

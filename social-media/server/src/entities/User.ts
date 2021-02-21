@@ -1,9 +1,11 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import {
   BaseEntity,
   BeforeInsert,
   Column,
   Entity,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import bcrypt from "bcryptjs";
@@ -11,7 +13,7 @@ import bcrypt from "bcryptjs";
 @ObjectType()
 @Entity("users")
 export class User extends BaseEntity {
-  @Field()
+  @Field(() => ID)
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
@@ -25,6 +27,13 @@ export class User extends BaseEntity {
 
   @Column()
   password: string;
+
+  @ManyToMany(() => User, (user) => user.following)
+  @JoinTable()
+  followers: User[];
+
+  @ManyToMany(() => User, (user) => user.followers)
+  following: User[];
 
   @BeforeInsert()
   async hashPassword() {
