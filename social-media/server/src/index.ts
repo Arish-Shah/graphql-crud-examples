@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
+import cors from "cors";
 
 import { UserResolver } from "./resolvers/user";
 import { TweetResolver } from "./resolvers/tweet";
@@ -34,6 +35,13 @@ const main = async () => {
   const app = express();
 
   app.use(
+    cors({
+      origin: process.env.CLIENT_URL,
+      credentials: true,
+    })
+  );
+
+  app.use(
     session({
       store: new RedisStore({
         client: redisClient,
@@ -52,7 +60,7 @@ const main = async () => {
     })
   );
 
-  server.applyMiddleware({ app });
+  server.applyMiddleware({ app, cors: false });
   app.listen(PORT, () => {
     console.log("🚀 Server started!");
   });

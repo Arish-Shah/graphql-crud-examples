@@ -3,6 +3,7 @@ import {
   Ctx,
   Field,
   FieldResolver,
+  ID,
   Mutation,
   ObjectType,
   Query,
@@ -37,6 +38,11 @@ export class UserResolver {
       return null;
     }
     return User.findOne(userId);
+  }
+
+  @Query(() => User, { nullable: true })
+  user(@Arg("username") username: string): Promise<User> {
+    return User.findOne({ where: { username } });
   }
 
   @FieldResolver(() => [Tweet])
@@ -112,5 +118,18 @@ export class UserResolver {
         };
       }
     }
+  }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: Context): Promise<boolean> {
+    return new Promise((resolve) => {
+      return req.session.destroy((err) => {
+        if (err) {
+          resolve(false);
+        }
+        res.clearCookie(process.env.COOKIE_NAME);
+        resolve(true);
+      });
+    });
   }
 }

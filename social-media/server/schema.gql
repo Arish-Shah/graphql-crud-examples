@@ -16,6 +16,7 @@ type FieldError {
 
 type Mutation {
   login(password: String!, username: String!): UserResponse!
+  logout: Boolean!
   register(input: RegisterInput!): UserResponse!
   reply(text: String!, tweetId: ID!): Reply!
   tweet(text: String!): Tweet!
@@ -24,6 +25,7 @@ type Mutation {
 type Query {
   me: User
   tweets: [Tweet!]!
+  user(username: String!): User
 }
 
 input RegisterInput {
