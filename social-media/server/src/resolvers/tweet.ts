@@ -8,6 +8,7 @@ import {
   ID,
   FieldResolver,
   Root,
+  Int,
 } from "type-graphql";
 import { Reply } from "../entities/Reply";
 
@@ -30,6 +31,15 @@ export class TweetResolver {
   replies(@Root() parent: Tweet) {
     return Reply.find({
       where: { parentId: parent.id },
+    });
+  }
+
+  @FieldResolver(() => Int)
+  repliesCount(@Root() parent: Tweet): Promise<number> {
+    return Reply.count({
+      where: {
+        parentId: parent.id,
+      },
     });
   }
 

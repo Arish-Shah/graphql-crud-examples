@@ -1,6 +1,7 @@
 fragment RegularTweet on Tweet {
   id
   text
+  repliesCount
   creator {
     ...RegularUser
   }

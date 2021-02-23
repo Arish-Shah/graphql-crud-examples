@@ -25,7 +25,10 @@ const NewTweet = () => {
           cache.writeQuery<TweetsQuery>({
             query: TweetsDocument,
             data: {
-              tweets: [data.tweet, ...(cachedTweets?.tweets || [])],
+              tweets: [
+                { ...data.tweet, repliesCount: 0 },
+                ...(cachedTweets?.tweets || []),
+              ],
             },
           });
         }

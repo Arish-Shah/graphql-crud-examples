@@ -48,6 +48,7 @@ export type Tweet = {
   creator: User;
   replies: Array<Reply>;
   createdAt: Scalars['DateTime'];
+  repliesCount: Scalars['Int'];
 };
 
 export type Reply = {
@@ -112,7 +113,7 @@ export type RegisterInput = {
 
 export type RegularTweetFragment = (
   { __typename?: 'Tweet' }
-  & Pick<Tweet, 'id' | 'text'>
+  & Pick<Tweet, 'id' | 'text' | 'repliesCount'>
   & { creator: (
     { __typename?: 'User' }
     & RegularUserFragment
@@ -260,7 +261,7 @@ export type UserQuery = (
     & Pick<User, 'id' | 'username'>
     & { tweets: Array<(
       { __typename?: 'Tweet' }
-      & Pick<Tweet, 'id' | 'text' | 'createdAt'>
+      & RegularTweetFragment
     )> }
   )> }
 );
@@ -275,6 +276,7 @@ export const RegularTweetFragmentDoc = gql`
     fragment RegularTweet on Tweet {
   id
   text
+  repliesCount
   creator {
     ...RegularUser
   }
@@ -569,13 +571,11 @@ export const UserDocument = gql`
     id
     username
     tweets {
-      id
-      text
-      createdAt
+      ...RegularTweet
     }
   }
 }
-    `;
+    ${RegularTweetFragmentDoc}`;
 
 /**
  * __useUserQuery__

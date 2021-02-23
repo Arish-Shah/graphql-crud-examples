@@ -48,6 +48,7 @@ type Tweet {
   creator: User!
   id: ID!
   replies: [Reply!]!
+  repliesCount: Int!
   text: String!
 }
 

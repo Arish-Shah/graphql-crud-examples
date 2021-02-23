@@ -3,9 +3,7 @@ query User($username: String!) {
     id
     username
     tweets {
-      id
-      text
-      createdAt
+      ...RegularTweet
     }
   }
 }
