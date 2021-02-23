@@ -4,6 +4,7 @@ import {
   GetTweetDocument,
   GetTweetQuery,
   useGetTweetQuery,
+  useMeQuery,
   useReplyMutation,
 } from "../generated/graphql";
 
@@ -65,6 +66,7 @@ const Tweet = () => {
       id,
     },
   });
+  const { data: meData } = useMeQuery();
 
   if (loading) {
     return <div>Loading...</div>;
@@ -78,7 +80,7 @@ const Tweet = () => {
         </Link>
         <h1 style={{ margin: 0 }}>{data.getTweet.text}</h1>
         <div>
-          <NewReply tweetId={id} />
+          {meData?.me?.id && <NewReply tweetId={id} />}
           {data.getTweet.replies.map((reply) => (
             <div key={reply.id} style={{ marginTop: "0.5rem" }}>
               <Link to={`/${reply.creator.username}`}>

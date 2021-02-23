@@ -4,6 +4,7 @@ import Tweet from "../components/Tweet";
 import {
   TweetsDocument,
   TweetsQuery,
+  useMeQuery,
   useTweetMutation,
   useTweetsQuery,
 } from "../generated/graphql";
@@ -53,6 +54,7 @@ const NewTweet = () => {
 
 const Feed = () => {
   const { data } = useTweetsQuery();
+  const { data: meData } = useMeQuery();
 
   const tweets =
     data?.tweets &&
@@ -61,7 +63,7 @@ const Feed = () => {
   return (
     <Fragment>
       <h1>Feed Page</h1>
-      <NewTweet />
+      {meData?.me?.id && <NewTweet />}
       {tweets}
     </Fragment>
   );
