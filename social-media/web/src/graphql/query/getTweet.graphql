@@ -1,0 +1,15 @@
+query GetTweet($id: ID!) {
+  getTweet(id: $id) {
+    text
+    creator {
+      ...RegularUser
+    }
+    replies {
+      id
+      text
+      creator {
+        username
+      }
+    }
+  }
+}

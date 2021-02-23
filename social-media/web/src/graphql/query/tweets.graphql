@@ -1,15 +1,5 @@
 query Tweets {
   tweets {
-    id
-    text
-    creator {
-      ...RegularUser
-    }
-    replies {
-      text
-      creator {
-        ...RegularUser
-      }
-    }
+    ...RegularTweet
   }
 }

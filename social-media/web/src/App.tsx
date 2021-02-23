@@ -6,6 +6,7 @@ import Login from "./pages/login";
 import Feed from "./pages/feed";
 import Navbar from "./components/Navbar";
 import User from "./pages/user";
+import Tweet from "./pages/tweet";
 
 const App = () => {
   const routes = (
@@ -13,7 +14,8 @@ const App = () => {
       <Route path="/register" component={Register} exact />
       <Route path="/login" component={Login} exact />
       <Route path="/feed" component={Feed} exact />
-      <Route path="/:username" component={User} />
+      <Route path="/tweet/:id" component={Tweet} exact />
+      <Route path="/:username" component={User} exact />
       <Redirect to="/feed" />
     </Switch>
   );

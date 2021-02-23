@@ -20,11 +20,17 @@ export type Query = {
   me?: Maybe<User>;
   user?: Maybe<User>;
   tweets: Array<Tweet>;
+  getTweet?: Maybe<Tweet>;
 };
 
 
 export type QueryUserArgs = {
   username: Scalars['String'];
+};
+
+
+export type QueryGetTweetArgs = {
+  id: Scalars['ID'];
 };
 
 export type User = {
@@ -104,6 +110,15 @@ export type RegisterInput = {
   password: Scalars['String'];
 };
 
+export type RegularTweetFragment = (
+  { __typename?: 'Tweet' }
+  & Pick<Tweet, 'id' | 'text'>
+  & { creator: (
+    { __typename?: 'User' }
+    & RegularUserFragment
+  ) }
+);
+
 export type RegularUserFragment = (
   { __typename?: 'User' }
   & Pick<User, 'id' | 'username'>
@@ -156,6 +171,61 @@ export type RegisterMutation = (
   ) }
 );
 
+export type ReplyMutationVariables = Exact<{
+  tweetId: Scalars['ID'];
+  text: Scalars['String'];
+}>;
+
+
+export type ReplyMutation = (
+  { __typename?: 'Mutation' }
+  & { reply: (
+    { __typename?: 'Reply' }
+    & Pick<Reply, 'id' | 'text'>
+    & { creator: (
+      { __typename?: 'User' }
+      & Pick<User, 'username'>
+    ) }
+  ) }
+);
+
+export type TweetMutationVariables = Exact<{
+  text: Scalars['String'];
+}>;
+
+
+export type TweetMutation = (
+  { __typename?: 'Mutation' }
+  & { tweet: (
+    { __typename?: 'Tweet' }
+    & RegularTweetFragment
+  ) }
+);
+
+export type GetTweetQueryVariables = Exact<{
+  id: Scalars['ID'];
+}>;
+
+
+export type GetTweetQuery = (
+  { __typename?: 'Query' }
+  & { getTweet?: Maybe<(
+    { __typename?: 'Tweet' }
+    & Pick<Tweet, 'text'>
+    & { creator: (
+      { __typename?: 'User' }
+      & RegularUserFragment
+    ), replies: Array<(
+      { __typename?: 'Reply' }
+      & Pick<Reply, 'id' | 'text'>
+      & { creator: (
+        { __typename?: 'User' }
+        & Pick<User, 'username'>
+      ) }
+    )> }
+  )> }
+);
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -174,18 +244,7 @@ export type TweetsQuery = (
   { __typename?: 'Query' }
   & { tweets: Array<(
     { __typename?: 'Tweet' }
-    & Pick<Tweet, 'id' | 'text'>
-    & { creator: (
-      { __typename?: 'User' }
-      & RegularUserFragment
-    ), replies: Array<(
-      { __typename?: 'Reply' }
-      & Pick<Reply, 'text'>
-      & { creator: (
-        { __typename?: 'User' }
-        & RegularUserFragment
-      ) }
-    )> }
+    & RegularTweetFragment
   )> }
 );
 
@@ -212,6 +271,15 @@ export const RegularUserFragmentDoc = gql`
   username
 }
     `;
+export const RegularTweetFragmentDoc = gql`
+    fragment RegularTweet on Tweet {
+  id
+  text
+  creator {
+    ...RegularUser
+  }
+}
+    ${RegularUserFragmentDoc}`;
 export const LoginDocument = gql`
     mutation Login($username: String!, $password: String!) {
   login(username: $username, password: $password) {
@@ -319,6 +387,118 @@ export function useRegisterMutation(baseOptions?: Apollo.MutationHookOptions<Reg
 export type RegisterMutationHookResult = ReturnType<typeof useRegisterMutation>;
 export type RegisterMutationResult = Apollo.MutationResult<RegisterMutation>;
 export type RegisterMutationOptions = Apollo.BaseMutationOptions<RegisterMutation, RegisterMutationVariables>;
+export const ReplyDocument = gql`
+    mutation Reply($tweetId: ID!, $text: String!) {
+  reply(tweetId: $tweetId, text: $text) {
+    id
+    text
+    creator {
+      username
+    }
+  }
+}
+    `;
+export type ReplyMutationFn = Apollo.MutationFunction<ReplyMutation, ReplyMutationVariables>;
+
+/**
+ * __useReplyMutation__
+ *
+ * To run a mutation, you first call `useReplyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useReplyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [replyMutation, { data, loading, error }] = useReplyMutation({
+ *   variables: {
+ *      tweetId: // value for 'tweetId'
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useReplyMutation(baseOptions?: Apollo.MutationHookOptions<ReplyMutation, ReplyMutationVariables>) {
+        return Apollo.useMutation<ReplyMutation, ReplyMutationVariables>(ReplyDocument, baseOptions);
+      }
+export type ReplyMutationHookResult = ReturnType<typeof useReplyMutation>;
+export type ReplyMutationResult = Apollo.MutationResult<ReplyMutation>;
+export type ReplyMutationOptions = Apollo.BaseMutationOptions<ReplyMutation, ReplyMutationVariables>;
+export const TweetDocument = gql`
+    mutation Tweet($text: String!) {
+  tweet(text: $text) {
+    ...RegularTweet
+  }
+}
+    ${RegularTweetFragmentDoc}`;
+export type TweetMutationFn = Apollo.MutationFunction<TweetMutation, TweetMutationVariables>;
+
+/**
+ * __useTweetMutation__
+ *
+ * To run a mutation, you first call `useTweetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTweetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [tweetMutation, { data, loading, error }] = useTweetMutation({
+ *   variables: {
+ *      text: // value for 'text'
+ *   },
+ * });
+ */
+export function useTweetMutation(baseOptions?: Apollo.MutationHookOptions<TweetMutation, TweetMutationVariables>) {
+        return Apollo.useMutation<TweetMutation, TweetMutationVariables>(TweetDocument, baseOptions);
+      }
+export type TweetMutationHookResult = ReturnType<typeof useTweetMutation>;
+export type TweetMutationResult = Apollo.MutationResult<TweetMutation>;
+export type TweetMutationOptions = Apollo.BaseMutationOptions<TweetMutation, TweetMutationVariables>;
+export const GetTweetDocument = gql`
+    query GetTweet($id: ID!) {
+  getTweet(id: $id) {
+    text
+    creator {
+      ...RegularUser
+    }
+    replies {
+      id
+      text
+      creator {
+        username
+      }
+    }
+  }
+}
+    ${RegularUserFragmentDoc}`;
+
+/**
+ * __useGetTweetQuery__
+ *
+ * To run a query within a React component, call `useGetTweetQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetTweetQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetTweetQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetTweetQuery(baseOptions: Apollo.QueryHookOptions<GetTweetQuery, GetTweetQueryVariables>) {
+        return Apollo.useQuery<GetTweetQuery, GetTweetQueryVariables>(GetTweetDocument, baseOptions);
+      }
+export function useGetTweetLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetTweetQuery, GetTweetQueryVariables>) {
+          return Apollo.useLazyQuery<GetTweetQuery, GetTweetQueryVariables>(GetTweetDocument, baseOptions);
+        }
+export type GetTweetQueryHookResult = ReturnType<typeof useGetTweetQuery>;
+export type GetTweetLazyQueryHookResult = ReturnType<typeof useGetTweetLazyQuery>;
+export type GetTweetQueryResult = Apollo.QueryResult<GetTweetQuery, GetTweetQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {
@@ -354,20 +534,10 @@ export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
 export const TweetsDocument = gql`
     query Tweets {
   tweets {
-    id
-    text
-    creator {
-      ...RegularUser
-    }
-    replies {
-      text
-      creator {
-        ...RegularUser
-      }
-    }
+    ...RegularTweet
   }
 }
-    ${RegularUserFragmentDoc}`;
+    ${RegularTweetFragmentDoc}`;
 
 /**
  * __useTweetsQuery__

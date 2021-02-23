@@ -38,6 +38,11 @@ export class TweetResolver {
     return Tweet.find({ order: { createdAt: "DESC" } });
   }
 
+  @Query(() => Tweet, { nullable: true })
+  getTweet(@Arg("id", () => ID) id: string) {
+    return Tweet.findOne(id);
+  }
+
   @Mutation(() => Tweet)
   @UseMiddleware(isAuth)
   tweet(@Arg("text") text: string, @Ctx() { req }: Context): Promise<Tweet> {

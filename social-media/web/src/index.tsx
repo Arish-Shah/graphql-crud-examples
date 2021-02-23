@@ -9,6 +9,7 @@ import {
 import { BrowserRouter } from "react-router-dom";
 
 import App from "./App";
+import "./index.css";
 
 const httpLink = createHttpLink({
   uri: "http://localhost:4000/graphql",
@@ -18,6 +19,7 @@ const httpLink = createHttpLink({
 const client = new ApolloClient({
   link: httpLink,
   cache: new InMemoryCache(),
+  connectToDevTools: true,
 });
 
 ReactDOM.render(

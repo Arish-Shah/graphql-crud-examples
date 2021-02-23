@@ -16,6 +16,7 @@ const Navbar = () => {
     logout({
       update(cache, { data }) {
         if (data?.logout) {
+          console.log("logging out");
           cache.writeQuery<MeQuery>({
             query: MeDocument,
             data: {
@@ -33,10 +34,10 @@ const Navbar = () => {
   if (data) {
     if (data.me) {
       return (
-        <Fragment>
-          <div>Hello {data.me.username}!</div>
+        <div className="nav">
+          <Link to="/">Hello {data.me.username}!</Link>
           <button onClick={handleLogout}>Logout</button>
-        </Fragment>
+        </div>
       );
     } else {
       return (

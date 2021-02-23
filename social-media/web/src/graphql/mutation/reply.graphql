@@ -1,0 +1,9 @@
+mutation Reply($tweetId: ID!, $text: String!) {
+  reply(tweetId: $tweetId, text: $text) {
+    id
+    text
+    creator {
+      username
+    }
+  }
+}
